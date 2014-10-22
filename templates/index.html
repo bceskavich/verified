@@ -1,0 +1,22 @@
+<html>
+<body>
+  {% if g.screen_name %}
+    <a href="{{url_for('logout')}}">Logout</a>
+  {% else %}
+    <a href="{{url_for('login')}}">Login</a>
+  {% endif %}
+
+  {% if g.screen_name %}
+    <h1>Hey there, @{{screen_name}}</h1>
+    <ul>
+      <li>Total Followers: {{follower_count}}</li>
+      <li>Verified Followers: {{verified_count}}</li>
+      <li>Regular Followers: {{regular_count}}</li>
+    </ul>
+    {% for user in verified_users %}
+      <img src="{{user['avatar']}}" />
+      <p>{{user['handle']}}</p>
+    {% endfor %}
+  {% endif %}
+</body>
+</html>
