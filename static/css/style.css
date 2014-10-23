@@ -3,7 +3,7 @@ body {
 }
 
 .container {
-  width: 980px;
+  width: 1000px;
   margin: 0px auto;
 }
 
@@ -11,21 +11,13 @@ h1 {
   font-size: 75px;
   margin: 0px;
   padding-top: 50px;
-  text-align: center;
-}
-
-h3 {
-  font-weight: normal;
-  font-size: 25px;
-  font-style: italic;
-  text-align: center;
 }
 
 hr {
   width: 500px;
   border-style: solid;
   color: #ccc;
-  margin: 75px auto;
+  margin: 50px auto;
 }
 
 #name {
@@ -33,17 +25,22 @@ hr {
 }
 
 p {
-  font-size: 25px;
+  font-size: 20px;
+}
+
+.message {
+  color: #FF530D;
 }
 
 .button {
   text-decoration: none;
+  font-weight: bold;
   color: black;
   display: block;
   width: 400px;
   text-align: center;
-  font-size: 50px;
-  padding: 10px 20px;
+  font-size: 40px;
+  padding: 10px 15px;
   margin: 150px auto;
   border: 2px solid #FF530D;
   border-radius: 5px;
@@ -52,6 +49,15 @@ p {
 .button:hover {
   background-color: #FF530D;
   color: white;
+}
+
+.results-text {
+  margin: 50px 0px;
+}
+
+.results-text h4 {
+  font-size: 40px;
+  margin: 0px;
 }
 
 .graph-container {
@@ -64,18 +70,54 @@ p {
   float: left;
 }
 
-.graph-text {
+.verified {
   float: left;
-  padding-left: 25px;
+  margin-left: 20px;
+  width: 480px;
 }
 
-.graph-text h4 {
-  font-size: 40px;
+.verified p {
   margin: 0px;
+  font-weight: bold;
+}
+
+.verified_user {
+  float: left;
+  margin: 20px;
+}
+
+.verified_user img {
+  border: 1px solid black;
+  border-radius: 5px;
+  box-shadow: 0px 0px 5px 1px #aaa;
 }
 
 .count {
-  font-size: 75px;
-  font-weight: bold;
+  font-size: 25px;
   text-anchor: middle;
+  dominant-baseline: central;
+}
+
+footer {
+  height: 50px;
+  padding: 25px 0px;
+  clear: both;
+}
+
+footer p {
+  width: 100%;
+  text-align: center;
+  font-size: 10px;
+  color: #aaa;
+  padding: 0px;
+  line-height: 50px;
+}
+
+footer p a {
+  text-decoration: none;
+  color: #2B3A42;
+}
+
+footer p a:hover {
+  text-decoration: underline;
 }

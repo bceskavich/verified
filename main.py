@@ -9,11 +9,13 @@ import json
 CSRF_ENABLED = True
 
 # Your Twitter credentials here
-consumer_key = 'GgXkbQnIzPDU57RPhVSorGJxW'
-consumer_secret = 'e1zpB6aDOJTp96cIbart7VCLvFcjPIEt33dOrIXpe5NZDxdtGU'
+consumer_key = ''
+consumer_secret = ''
+
+basedir = os.path.abspath(os.path.dirname(__file__))
 
 app = Flask(__name__)
-app.debug = True
+# app.debug = True
 app.config.from_object(__name__)
 app.secret_key = os.urandom(24)
 
@@ -33,6 +35,7 @@ oauth.init_app(app)
 @app.before_request
 def before_reqeust():
     g.screen_name = None
+    g.logged_in = False
     if 'user_info' in session:
         g.screen_name = session['user_info']['screen_name']
 
@@ -47,26 +50,29 @@ def get_verified_count():
 
     follower_count = 0
     verified_count = 0
-    regular_count = 0
 
     verified_users = []
 
-    for item in Cursor(twitter_api.followers, user_id=user_id, count=200).items(200):
-        data = item._json
-        if data['verified'] == True:
-            verified_count += 1
-            user = {
-                'handle': data['screen_name'],
-                'avatar': data['profile_image_url_https']
-            }
-            verified_users.append(user)
-        else:
-            regular_count += 1
-        follower_count += 1
+    exception = False
+    try:
+        for item in Cursor(twitter_api.followers, user_id=user_id, count=200).items():
+            data = item._json
+            if data['verified'] == True:
+                verified_count += 1
+                user = {
+                    'handle': data['screen_name'],
+                    'avatar': data['profile_image_url_https']
+                }
+                verified_users.append(user)
+            else:
+                pass
+            follower_count += 1
+    except:
+        exception = True
 
-    return verified_count, regular_count, follower_count, verified_users
+    return verified_count, follower_count, verified_users, exception
 
-def write_to_file(user, follower_count, verified_count, regular_count):
+def write_to_file(user, follower_count, verified_count):
     filename = 'data/' + user + '_counts.csv'
     with open('static/' + filename, 'w') as outfile:
         outfile.write('value,count')
@@ -74,8 +80,6 @@ def write_to_file(user, follower_count, verified_count, regular_count):
         outfile.write('follower_count,' + str(follower_count))
         outfile.write('\n')
         outfile.write('verified_count,' + str(verified_count))
-        outfile.write('\n')
-        outfile.write('regular_count,' + str(regular_count))
 
     return filename
 
@@ -84,25 +88,47 @@ def write_to_file(user, follower_count, verified_count, regular_count):
 @app.route('/index')
 def index():
     screen_name = 'ceskavich'
-    verified_count = 9
-    # verified_users = None
-    regular_count = 631
-    follower_count = 640
+    verified_count = None
+    verified_users = None
+    follower_count = None
     datafile = None
-    """
-    if g.screen_name is not None:
-        screen_name = g.screen_name
-        verified_count, regular_count, follower_count, verified_users = get_verified_count()
-        filename = write_to_file(screen_name, follower_count, verified_count, regular_count)
-        datafile = url_for('static', filename=filename)
-    """
-    datafile = url_for('static', filename='data/ceskavich_counts.csv')
+    percentage = None
+    percent = None
+    if g.logged_in:
+        verified_count = session['count_info']['verified_count']
+        follower_count = session['count_info']['follower_count']
+        verified_users = session['count_info']['verified_users']
+        filename = session['count_info']['filename']
+        datafile = session['count_info']['datafile']
+        percent = session['count_info']['percent']
+        percentage = session['percentage']
+    elif g.screen_name is not None:
+        g.logged_in = True
+        verified_count, follower_count, verified_users, exception = get_verified_count()
+        if exception:
+            flash('Ah man, Twitter rate limited us. Try again in about 15 minutes.')
+            return redirect(url_for('logout'))
+        else:
+            filename = write_to_file(screen_name, follower_count, verified_count)
+            datafile = url_for('static', filename=filename)
+            percentage = (float(verified_count) / float(follower_count)) * 100
+            percent = "{0:.2f}".format(percentage)
+            session['count_info'] = {
+                'verified_count': verified_count,
+                'follower_count': follower_count,
+                'verified_users': verified_users,
+                'filename': filename,
+                'datafile': datafile,
+                'percent': percent,
+                'percentage': percentage
+            }
     return render_template('index.html',
-        screen_name=screen_name,
+        screen_name=g.screen_name,
         verified_count=verified_count,
-        # verified_users=verified_users,
-        regular_count=regular_count,
+        verified_users=verified_users,
         follower_count=follower_count,
+        percentage=percentage,
+        percent=percent,
         datafile=datafile)
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -130,8 +156,13 @@ def auth(resp):
 @app.route('/logout')
 def logout():
     session.pop('user_info', None)
-    flash("You've been logged out!")
+    g.logged_in = False
+    g.screen_name = None
     return redirect(url_for('index'))
+
+@app.route('/error')
+def error():
+    return 'ERROR'
 
 if __name__ == '__main__':
     app.run()

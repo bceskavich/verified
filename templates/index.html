@@ -6,69 +6,99 @@
   <body>
     <main class="container">
       <h1>That’s So <span id="name">Fetch</span></h1>
-      <h3>Helping the socially savvy discover their true level of awesome since 2014.</h3>
-
-      <hr />
+      <!--<h3>Helping the socially savvy discover their true level of awesome since 2014.</h3>-->
 
       <p>Who needs a vague influence score when all that really matters is that carefully crafted ratio? Well we’ve got you covered. We tally up the stats the truly count when it comes to your social presence. How fetch are you?</p>
+
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          {% for message in messages %}
+            <p class="message">{{ message }}</p>
+          {% endfor %}
+        {% endif %}
+        {% endwith %}
+
       {% if g.screen_name %}
+        <hr />
+        <div class="results-text">
+          <h4>@{{screen_name}} | <a href="{{url_for('logout')}}">Logout</a></h4>
+          <p>{{percent}}% of your {{follower_count}} followers are verified.
+          {% if percentage <= 10 %}
+            Girl, you're basic.</p>
+          {% elif percentage > 10.0 and percentage <= 20.0 %}
+            Whatever.</p>
+          {% elif percentage > 20.0 and percentage <= 30.0 %}
+            Eh, I guess you're kinda cool...</p>
+          {% else %}
+            Go you, I bet you think you're so awesome! 'Cause you are, I guess.</p>
+          {% endif %}
+        </div>
         <div class="graph-container">
           <div class="graph"></div>
-          <div class="graph-text">
-            <h4>@{{screen_name}}</h4>
-            <p>Girl, you basic.</p>
+          <div class="verified">
+            <p>Who are they?</p>
+            {% for user in verified_users %}
+              <div class="verified_user">
+                <a href="https://twitter.com/{{user['handle']}}"><img src="{{user['avatar']}}" /></a>
+              </div>
+            {% endfor %}
           </div>
         </div>
       {% else %}
         <a class="button" href="{{url_for('login')}}">Fetch My Count</a>
       {% endif %}
+      <footer>
+        <p>Fetch: Helping the socially savvy discover their true level of awesome since 2014. Crafted by <a href="www.ceskavich.com">Billy Ceskavich</a>.</p>
+      </footer>
     </main>
 
-      <script>
-        var width = 500,
-          height = 500,
-          radius = Math.min(width, height) / 2
+    {% if g.screen_name %}
+    <script>
+      var width = 500,
+        height = 500,
+        radius = Math.min(width, height) / 2
 
-        var color = d3.scale.ordinal()
-          .range(['#2B3A42', '#FF530D']);
+      var color = d3.scale.ordinal()
+        .range(['#2B3A42', '#FF530D']);
 
-        var arc = d3.svg.arc()
-          .outerRadius(radius)
-          .innerRadius(radius / 1.5);
+      var arc = d3.svg.arc()
+        .outerRadius(radius)
+        .innerRadius(radius / 1.5);
 
-        var pie = d3.layout.pie()
-          .sort(null)
-          .value(function(d){ return d.count; });
+      var pie = d3.layout.pie()
+        .sort(null)
+        .value(function(d){ return d.count; });
 
-        var svg = d3.select('.graph').append('svg')
-          .attr('width', width)
-          .attr('height', height)
-          .append('g')
-          .attr('transform', 'translate(' + width/2 + ',' + height/2 + ')');
+      var svg = d3.select('.graph').append('svg')
+        .attr('width', width)
+        .attr('height', height)
+        .append('g')
+        .attr('transform', 'translate(' + width/2 + ',' + height/2 + ')');
 
-        d3.csv("{{datafile}}", function(error, data){
-          data.forEach(function(d){
-            d.count = +d.count;
-          });
-
-          var g = svg.selectAll('.arc')
-            .data(pie(data))
-            .enter().append('g');
-
-          g.append('path')
-            .attr('d', arc)
-            .style('fill', function(d){ return color(d.data.value); });
-
-          data.forEach(function(d){
-            if (d.value === 'verified_count'){
-              g.append('text')
-                .attr('class', 'count')
-                .text(d.count);
-            }
-          });
-
+      d3.csv("{{datafile}}", function(error, data){
+        data.forEach(function(d){
+          d.count = +d.count;
         });
-      </script>
+
+        var g = svg.selectAll('.arc')
+          .data(pie(data))
+          .enter().append('g');
+
+        g.append('path')
+          .attr('d', arc)
+          .style('fill', function(d){ return color(d.data.value); });
+
+        data.forEach(function(d){
+          if (d.value === 'verified_count'){
+            g.append('text')
+              .attr('class', 'count')
+              .text(d.count + ' Verified Followers');
+          }
+        });
+
+      });
+    </script>
+    {% endif %}
 
   </body>
 </html>
