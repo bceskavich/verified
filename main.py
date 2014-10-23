@@ -68,7 +68,7 @@ def get_verified_count():
 
 def write_to_file(user, follower_count, verified_count, regular_count):
     filename = 'data/' + user + '_counts.csv'
-    with open(filename, 'w') as outfile:
+    with open('static/' + filename, 'w') as outfile:
         outfile.write('value,count')
         outfile.write('\n')
         outfile.write('follower_count,' + str(follower_count))
@@ -77,25 +77,33 @@ def write_to_file(user, follower_count, verified_count, regular_count):
         outfile.write('\n')
         outfile.write('regular_count,' + str(regular_count))
 
+    return filename
+
 
 @app.route('/')
 @app.route('/index')
 def index():
-    screen_name = None
-    verified_count = None,
-    verified_users = None
-    regular_count = None
-    follower_count = None
+    screen_name = 'ceskavich'
+    verified_count = 9
+    # verified_users = None
+    regular_count = 631
+    follower_count = 640
+    datafile = None
+    """
     if g.screen_name is not None:
         screen_name = g.screen_name
         verified_count, regular_count, follower_count, verified_users = get_verified_count()
-        write_to_file(screen_name, follower_count, verified_count, regular_count)
+        filename = write_to_file(screen_name, follower_count, verified_count, regular_count)
+        datafile = url_for('static', filename=filename)
+    """
+    datafile = url_for('static', filename='data/ceskavich_counts.csv')
     return render_template('index.html',
         screen_name=screen_name,
         verified_count=verified_count,
-        verified_users=verified_users,
+        # verified_users=verified_users,
         regular_count=regular_count,
-        follower_count=follower_count)
+        follower_count=follower_count,
+        datafile=datafile)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():

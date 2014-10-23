@@ -1,22 +1,74 @@
 <html>
-<body>
-  {% if g.screen_name %}
-    <a href="{{url_for('logout')}}">Logout</a>
-  {% else %}
-    <a href="{{url_for('login')}}">Login</a>
-  {% endif %}
+  <head>
+    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/style.css')}}" />
+  </head>
+  <body>
+    <main class="container">
+      <h1>That’s So <span id="name">Fetch</span></h1>
+      <h3>Helping the socially savvy discover their true level of awesome since 2014.</h3>
 
-  {% if g.screen_name %}
-    <h1>Hey there, @{{screen_name}}</h1>
-    <ul>
-      <li>Total Followers: {{follower_count}}</li>
-      <li>Verified Followers: {{verified_count}}</li>
-      <li>Regular Followers: {{regular_count}}</li>
-    </ul>
-    {% for user in verified_users %}
-      <img src="{{user['avatar']}}" />
-      <p>{{user['handle']}}</p>
-    {% endfor %}
-  {% endif %}
-</body>
+      <hr />
+
+      <p>Who needs a vague influence score when all that really matters is that carefully crafted ratio? Well we’ve got you covered. We tally up the stats the truly count when it comes to your social presence. How fetch are you?</p>
+      {% if g.screen_name %}
+        <div class="graph-container">
+          <div class="graph"></div>
+          <div class="graph-text">
+            <h4>@{{screen_name}}</h4>
+            <p>Girl, you basic.</p>
+          </div>
+        </div>
+      {% else %}
+        <a class="button" href="{{url_for('login')}}">Fetch My Count</a>
+      {% endif %}
+    </main>
+
+      <script>
+        var width = 500,
+          height = 500,
+          radius = Math.min(width, height) / 2
+
+        var color = d3.scale.ordinal()
+          .range(['#2B3A42', '#FF530D']);
+
+        var arc = d3.svg.arc()
+          .outerRadius(radius)
+          .innerRadius(radius / 1.5);
+
+        var pie = d3.layout.pie()
+          .sort(null)
+          .value(function(d){ return d.count; });
+
+        var svg = d3.select('.graph').append('svg')
+          .attr('width', width)
+          .attr('height', height)
+          .append('g')
+          .attr('transform', 'translate(' + width/2 + ',' + height/2 + ')');
+
+        d3.csv("{{datafile}}", function(error, data){
+          data.forEach(function(d){
+            d.count = +d.count;
+          });
+
+          var g = svg.selectAll('.arc')
+            .data(pie(data))
+            .enter().append('g');
+
+          g.append('path')
+            .attr('d', arc)
+            .style('fill', function(d){ return color(d.data.value); });
+
+          data.forEach(function(d){
+            if (d.value === 'verified_count'){
+              g.append('text')
+                .attr('class', 'count')
+                .text(d.count);
+            }
+          });
+
+        });
+      </script>
+
+  </body>
 </html>

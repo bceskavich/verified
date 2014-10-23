@@ -1,0 +1,81 @@
+body {
+  font-family: 'Avenir', sans-serif;
+}
+
+.container {
+  width: 980px;
+  margin: 0px auto;
+}
+
+h1 {
+  font-size: 75px;
+  margin: 0px;
+  padding-top: 50px;
+  text-align: center;
+}
+
+h3 {
+  font-weight: normal;
+  font-size: 25px;
+  font-style: italic;
+  text-align: center;
+}
+
+hr {
+  width: 500px;
+  border-style: solid;
+  color: #ccc;
+  margin: 75px auto;
+}
+
+#name {
+  color: #FF530D;
+}
+
+p {
+  font-size: 25px;
+}
+
+.button {
+  text-decoration: none;
+  color: black;
+  display: block;
+  width: 400px;
+  text-align: center;
+  font-size: 50px;
+  padding: 10px 20px;
+  margin: 150px auto;
+  border: 2px solid #FF530D;
+  border-radius: 5px;
+}
+
+.button:hover {
+  background-color: #FF530D;
+  color: white;
+}
+
+.graph-container {
+  margin-top: 75px;
+}
+
+.graph {
+  width: 500px;
+  height: 500px;
+  float: left;
+}
+
+.graph-text {
+  float: left;
+  padding-left: 25px;
+}
+
+.graph-text h4 {
+  font-size: 40px;
+  margin: 0px;
+}
+
+.count {
+  font-size: 75px;
+  font-weight: bold;
+  text-anchor: middle;
+}
